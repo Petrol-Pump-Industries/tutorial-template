@@ -20,5 +20,6 @@ Contents
 
    usage
    api
+   pages
 
 Lumache hosts its documentation on Read the Docs.
