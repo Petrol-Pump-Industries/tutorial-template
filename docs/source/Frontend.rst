@@ -90,15 +90,56 @@ map_page.dart
 
 .. code-block:: dart
     class MapPage extends StatelessWidget {
-        const MapPage({super.key, this.hereInitMessage, this.journey});
+  const MapPage({super.key, this.hereInitMessage, this.journey});
 
-        final String? hereInitMessage;
-        final Journey? journey;
+  final String? hereInitMessage;
+  final Journey? journey;
 
-        @override
-        Widget build(BuildContext context) {
-            return MapUi(initializationMessage: hereInitMessage, journey: journey);
-        }
-    }
+  @override
+  Widget build(BuildContext context) {
+    return MapUi(initializationMessage: hereInitMessage, journey: journey);
+  }
+}
 
 This class represents the Map Page of the application. It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
+
+register_page.dart
+------------------
+
+.. code-block:: dart
+
+  Future<void> _onRegister() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      await _authService.register(
+        _emailController.text.trim(),
+        _usernameController.text.trim(),
+        _passwordController.text,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account created! Please log in.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.of(context).pop(); // Back to login
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+This function handles the user registration process. It validates the form, shows a loading indicator, and attempts to register a new account using the provided email, username, and password. If registration is successful, it displays a success message and navigates back to the login page. If there's an error during registration, it shows an error message in a snackbar.
+
+
