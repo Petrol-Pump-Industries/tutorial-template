@@ -89,18 +89,16 @@ map_page.dart
 -------------
 
 .. code-block:: dart
+    class MapPage extends StatelessWidget {
+        const MapPage({super.key, this.hereInitMessage, this.journey});
 
-class MapPage extends StatelessWidget {
-  const MapPage({super.key, this.hereInitMessage, this.journey});
+        final String? hereInitMessage;
+        final Journey? journey;
 
-  final String? hereInitMessage;
-  final Journey? journey;
-
-  @override
-  Widget build(BuildContext context) {
-    return MapUi(initializationMessage: hereInitMessage, journey: journey);
-  }
-}
+        @override
+        Widget build(BuildContext context) {
+            return MapUi(initializationMessage: hereInitMessage, journey: journey);
+        }
+    }
 
 This class represents the Map Page of the application. It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
-
