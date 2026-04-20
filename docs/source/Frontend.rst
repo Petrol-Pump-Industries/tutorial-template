@@ -21,8 +21,34 @@ pages
 Login_page.dart
 ---------------
 
-.. code-block:: python
+.. code-block:: dart
     :linenos:
 
-    def hello():
-        print("Hello world")
+    
+  Future<void> _onLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+      if (mounted) Navigator.of(context).pushReplacementNamed('/map');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+This function is used to handle the login process.
+It validates the form, shows a loading indicator,
+ and attempts to log in using the provided email and password.
+If successful, it navigates to the map page; if there's an error, it displays a snackbar with the error message.
