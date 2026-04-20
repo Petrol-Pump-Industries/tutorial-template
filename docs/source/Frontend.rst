@@ -21,7 +21,7 @@ pages
 Login_page.dart
 ---------------
 
-.. code-block:: text
+.. code-block:: dart
 
   Future<void> _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
@@ -51,7 +51,7 @@ It validates the form, shows a loading indicator,
 and attempts to log in using the provided email and password.
 If successful, it navigates to the map page; if there's an error, it displays a snackbar with the error message.
 
-.. code-block:: text
+.. code-block:: dart
 
     Future<void> _onGuest() async {
         setState(() => _isLoading = true);
