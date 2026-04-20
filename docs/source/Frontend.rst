@@ -64,3 +64,43 @@ If successful, it navigates to the map page; if there's an error, it displays a 
     }
 
 This function allows users to create a guest account and navigate to the map page without needing to log in with an email and password. It also shows a loading indicator while the account is being created.
+
+main_page.dart
+--------------
+
+.. code-block:: dart
+
+  void _onMenuItemSelected(NavigationMenuItem item) {
+    final nextRoute = _routeByItem[item];
+    if (nextRoute == null) {
+      return;
+    }
+
+    if (ModalRoute.of(context)?.settings.name == nextRoute) {
+      return;
+    }
+
+    Navigator.of(context).pushReplacementNamed(nextRoute);
+  }
+
+This function handles the selection of menu items in the navigation drawer. It checks if the selected item has a corresponding route and if it's not already the current route, it navigates to the new route using `pushReplacementNamed`.
+
+map_page.dart
+-------------
+
+.. code-block:: dart
+
+class MapPage extends StatelessWidget {
+  const MapPage({super.key, this.hereInitMessage, this.journey});
+
+  final String? hereInitMessage;
+  final Journey? journey;
+
+  @override
+  Widget build(BuildContext context) {
+    return MapUi(initializationMessage: hereInitMessage, journey: journey);
+  }
+}
+
+This class represents the Map Page of the application. It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
+
