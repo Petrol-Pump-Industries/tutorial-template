@@ -88,18 +88,18 @@ This function handles the selection of menu items in the navigation drawer. It c
 map_page.dart
 -------------
 
-.. code-block:: flutter
+.. code-block:: dart
     class MapPage extends StatelessWidget {
-  const MapPage({super.key, this.hereInitMessage, this.journey});
+      const MapPage({super.key, this.hereInitMessage, this.journey});
 
-  final String? hereInitMessage;
-  final Journey? journey;
+      final String? hereInitMessage;
+      final Journey? journey;
 
-  @override
-  Widget build(BuildContext context) {
-    return MapUi(initializationMessage: hereInitMessage, journey: journey);
-  }
-}
+      @override
+      Widget build(BuildContext context) {
+        return MapUi(initializationMessage: hereInitMessage, journey: journey);
+      }
+    }
 
 
 This class represents the Map Page of the application. It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
@@ -256,7 +256,34 @@ trips_page.dart
 
 .. code-block:: dart
 
+  Future<void> _loadJourneys() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = await _authService.getCurrentUser();
+      if (user != null && user.id != null) {
+        final journeys = await _journeyRepo.readAllJourneys(user.id!);
+        setState(() => _journeys = journeys);
+      } else {
+        setState(() => _journeys = []);
+      }
+    } catch (e) {
+      debugPrint('Error loading journeys: $e');
+      setState(() => _journeys = []);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
 vehicles_page.dart
 ------------------
 
 .. code-block:: dart
+
+   class VehiclesPage extends StatelessWidget {
+     const VehiclesPage({super.key});
+
+     @override
+     Widget build(BuildContext context) {
+       return const VehiclesMenu();
+     }
+   }
