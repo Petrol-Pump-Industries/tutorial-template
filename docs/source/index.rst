@@ -19,5 +19,6 @@ Contents
 .. toctree::
 
    Frontend
+   Backend
 
 Lumache hosts its documentation on Read the Docs.
