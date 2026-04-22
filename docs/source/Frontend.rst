@@ -3,7 +3,7 @@ Frontend
 
 Overview
 --------
-This front end uses various scripts such as pages and model. 
+This front end uses various scripts such as pages and models. 
 In order to keep each and every part of the program be easy to Read.
 
 Fonts
@@ -19,7 +19,7 @@ pages
 ------
 
 Login_page.dart
----------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -66,7 +66,7 @@ If successful, it navigates to the map page; if there's an error, it displays a 
 This function allows users to create a guest account and navigate to the map page without needing to log in with an email and password. It also shows a loading indicator while the account is being created.
 
 main_page.dart
---------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -86,26 +86,26 @@ main_page.dart
 This function handles the selection of menu items in the navigation drawer. It checks if the selected item has a corresponding route and if it's not already the current route, it navigates to the new route using `pushReplacementNamed`.
 
 map_page.dart
--------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
-    class MapPage extends StatelessWidget {
-      const MapPage({super.key, this.hereInitMessage, this.journey});
 
-      final String? hereInitMessage;
-      final Journey? journey;
+  class MapPage extends StatelessWidget {
+    const MapPage({super.key, this.hereInitMessage, this.journey});
 
-      @override
-      Widget build(BuildContext context) {
-        return MapUi(initializationMessage: hereInitMessage, journey: journey);
-      }
+    final String? hereInitMessage;
+    final Journey? journey;
+
+    @override
+    Widget build(BuildContext context) {
+      return MapUi(initializationMessage: hereInitMessage, journey: journey);
     }
-
+  }
 
 This class represents the Map Page of the application. It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
 
 register_page.dart
-------------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -144,14 +144,14 @@ register_page.dart
 This function handles the user registration process. It validates the form, shows a loading indicator, and attempts to register a new account using the provided email, username, and password. If registration is successful, it displays a success message and navigates back to the login page. If there's an error during registration, it shows an error message in a snackbar.
 
 search_page.dart
------------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
 
 
 settings_page.dart
-------------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -252,7 +252,7 @@ the function `_onChangePassword` is responsible for handling the password change
 The function `_onLogout` handles the user logout process. It first shows a confirmation dialog to ensure the user wants to log out. If the user confirms, it calls the logout method from the authentication service and navigates back to the login page.
 
 trips_page.dart
-------------------
+^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -274,8 +274,10 @@ trips_page.dart
     }
   }
 
+The function `_loadJourneys` is responsible for loading the user's journeys from the repository. It first sets a loading state, then retrieves the current user and their journeys. If successful, it updates the state with the retrieved journeys; if there's an error, it logs the error and sets the journeys to an empty list. Finally, it resets the loading state.
+
 vehicles_page.dart
-------------------
+^^^^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -287,3 +289,5 @@ vehicles_page.dart
        return const VehiclesMenu();
      }
    }
+
+This class represents the Vehicles Page of the application. It simply returns a `VehiclesMenu` widget, which is responsible for displaying the available vehicles and related options to the user.
