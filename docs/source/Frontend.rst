@@ -405,3 +405,55 @@ favourites_location_model.dart
       return GeoCoordinates(latitude, longitude);
     }
   }
+
+this is the FavoriteLocation model, which represents a user's saved lcoation with various details.
+
+journey_model.dart
+^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+  class Journey {
+  final int? id;
+  final int? userId;
+  final int? vehicleId;
+  final Location from;
+  final Location to;
+  final List<Location>? waypoints;
+  final double? distanceMiles;
+  final double? durationMinutes;
+  final double? cost;
+  final double? fuelLitres;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  //...
+
+  Map<String, Object?> toMap() {
+    final fromMap = from.toMap();
+    final toMap = to.toMap();
+    final nowIso = DateTime.now().toIso8601String();
+    final createdIso = createdAt?.toIso8601String() ?? nowIso;
+    final updatedIso = updatedAt?.toIso8601String() ?? createdIso;
+    return {
+      'id': id,
+      'user_id': userId,
+      'vehicle_id': vehicleId,
+      // journey_history schema stores JSON text for locations.
+      'origin': jsonEncode(fromMap),
+      'destination': jsonEncode(toMap),
+      'waypoints': waypoints != null ? jsonEncode(waypoints!.map((w) => w.toMap()).toList()) : null,
+      'distance_miles': distanceMiles,
+      'duration_minutes': durationMinutes,
+      'cost': cost,
+      'fuel_litres': fuelLitres,
+      // 'date' is the legacy column name from early schema versions (NOT NULL).
+      // We always populate it so old installed databases don't throw a constraint error.
+      'date': createdIso,
+      'created_at': createdIso,
+      'updated_at': updatedIso,
+    };
+  }
+
+This class represents the Journey model which contains details about the user's journey allowing them to view how much ca journey may cost.
+
+
