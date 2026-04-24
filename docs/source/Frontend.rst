@@ -15,7 +15,7 @@ Colours
 -----
 //temp
 
-pages
+Pages
 ------
 
 Login_page.dart
@@ -291,3 +291,117 @@ vehicles_page.dart
    }
 
 This class represents the Vehicles Page of the application. It simply returns a `VehiclesMenu` widget, which is responsible for displaying the available vehicles and related options to the user.
+
+models
+------
+
+classes that represent sets of data that we concistantly use throughout the program
+
+account_model.dart
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+  class Account {
+  final int? id;
+  final String email;
+  final String username;
+  final String passwordHash; // never store plain text
+  final bool isGuest;
+  final String? profilePicture; // Base64 or local file path
+  final bool isLoggedIn;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  Account({
+    this.id,
+    required this.email,
+    required this.username,
+    required this.passwordHash,
+    this.isGuest = false,
+    this.profilePicture,
+    this.isLoggedIn = false,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  Map<String, Object?> toMap() {
+    return {
+      'id': id,
+      'email': email,
+      'username': username,
+      'password_hash': passwordHash,
+      'is_guest': isGuest ? 1 : 0,
+      'is_logged_in': isLoggedIn ? 1 : 0,
+      'profile_picture': profilePicture,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
+
+  static Account fromMap(Map<String, dynamic> map) {
+    return Account(
+      id: map['id'] as int?,
+      email: map['email'] as String,
+      username: map['username'] as String,
+      passwordHash: map['password_hash'] as String,
+      isGuest: (map['is_guest'] as int?) == 1,
+      isLoggedIn: (map['is_logged_in'] as int?) == 1,
+      profilePicture: map['profile_picture'] as String?,
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'] as String)
+          : null,
+      updatedAt: map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : null,
+    );
+  }
+
+  Account copy({
+    int? id,
+    String? email,
+    String? username,
+    String? passwordHash,
+    bool? isGuest,
+    String? profilePicture,
+    bool? isLoggedIn,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) =>
+      Account(
+        id: id ?? this.id,
+        email: email ?? this.email,
+        username: username ?? this.username,
+        passwordHash: passwordHash ?? this.passwordHash,
+        isGuest: isGuest ?? this.isGuest,
+        profilePicture: profilePicture ?? this.profilePicture,
+        isLoggedIn: isLoggedIn ?? this.isLoggedIn,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+}
+
+This class represents the Account model, which contains information about a user's account.
+
+favourites_location_model.dart
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+  class FavoriteLocation {
+    final int? id;
+    final int? userId;
+    final String name;
+    final String? address;
+    final double latitude;
+    final double longitude;
+    final String? placeId;
+    final String? iconType;
+    final DateTime? createdAt;
+
+    //...
+
+    GeoCoordinates toGeoCoordinates() {
+      return GeoCoordinates(latitude, longitude);
+    }
+  }
