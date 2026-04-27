@@ -21,105 +21,105 @@ Main.dart
 .. code-block:: dart
 
   import 'package:flutter/material.dart';
-import 'package:here_sdk/core.dart';
-import 'package:here_sdk/core.engine.dart';
-import 'src/pages/main_page.dart';
-import 'src/pages/login_page.dart';
-import 'src/pages/register_page.dart';
-import 'src/repositories/auth_service.dart';
-import 'src/widgets/Navigation_menu.dart';
-import 'src/utils/db_init_desktop.dart'
-    if (dart.library.html) 'src/utils/db_init_web.dart';
+  import 'package:here_sdk/core.dart';
+  import 'package:here_sdk/core.engine.dart';
+  import 'src/pages/main_page.dart';
+  import 'src/pages/login_page.dart';
+  import 'src/pages/register_page.dart';
+  import 'src/repositories/auth_service.dart';
+  import 'src/widgets/Navigation_menu.dart';
+  import 'src/utils/db_init_desktop.dart'
+      if (dart.library.html) 'src/utils/db_init_web.dart';
 
-Future<void> main() async {
-  print('############################################################');
-  print('--- PRICE PUMP BOOT: APP IS STARTING NOW ---');
-  print('############################################################');
-  WidgetsFlutterBinding.ensureInitialized();
+  Future<void> main() async {
+    print('############################################################');
+    print('--- PRICE PUMP BOOT: APP IS STARTING NOW ---');
+    print('############################################################');
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialise SQLite FFI for desktop platforms (no-op on web)
-  print('--- PricePump Boot: DB Platform Init ---');
-  initDatabaseForPlatform();
+    // Initialise SQLite FFI for desktop platforms (no-op on web)
+    print('--- PricePump Boot: DB Platform Init ---');
+    initDatabaseForPlatform();
 
-  print('--- PricePump Boot: Initializing HERE SDK ---');
-  final hereInitMessage = await _initializeHereSdk();
+    print('--- PricePump Boot: Initializing HERE SDK ---');
+    final hereInitMessage = await _initializeHereSdk();
 
-  // Check if a session already exists
-  print('--- PricePump Boot: Checking Auth Session ---');
-  final existingUser = await AuthService().getCurrentUser();
-  final initialRoute = existingUser != null ? '/map' : '/login';
+    // Check if a session already exists
+    print('--- PricePump Boot: Checking Auth Session ---');
+    final existingUser = await AuthService().getCurrentUser();
+    final initialRoute = existingUser != null ? '/map' : '/login';
 
-  print('--- PricePump Boot: Launching App (Initial Route: $initialRoute) ---');
-  runApp(
-    PricePumpApp(hereInitMessage: hereInitMessage, initialRoute: initialRoute),
-  );
-}
-
-Future<String?> _initializeHereSdk() async {
-  try {
-    SdkContext.init();
-  } catch (error) {
-    return 'HERE SDK context init failed: $error';
-  }
-
-  const accessKeyId = "df528Mc-qcBoIMFyHtk1pQ";
-  const accessKeySecret =
-      "3bDA6_wm3Ve01MsnUXW4cXj2FlJQfDvOClP2vCORSDXeZHDEE5K7VRTHHCmblJGVvh4SofQMapWYfDL8canRiA";
-
-  if (accessKeyId.isEmpty || accessKeySecret.isEmpty) {
-    return 'HERE SDK credentials are missing. Run with --dart-define=HERE_ACCESS_KEY_ID=... and --dart-define=HERE_ACCESS_KEY_SECRET=...';
-  }
-
-  try {
-    final authenticationMode = AuthenticationMode.withKeySecret(
-      accessKeyId,
-      accessKeySecret,
-    );
-    final sdkOptions = SDKOptions.withAuthenticationMode(authenticationMode);
-    await SDKNativeEngine.makeSharedInstance(sdkOptions);
-  } catch (error) {
-    return 'HERE SDK engine init failed: $error';
-  }
-
-  return null;
-}
-
-class PricePumpApp extends StatelessWidget {
-  const PricePumpApp({
-    super.key,
-    this.hereInitMessage,
-    this.initialRoute = '/login',
-  });
-
-  final String? hereInitMessage;
-  final String initialRoute;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Price Pump',
-      theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
-      initialRoute: initialRoute,
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/register': (context) => const RegisterPage(),
-        '/map': (context) => MainPage(
-          currentItem: NavigationMenuItem.map,
-          hereInitMessage: hereInitMessage,
-        ),
-        '/search': (context) =>
-            const MainPage(currentItem: NavigationMenuItem.search),
-        '/trips': (context) =>
-            const MainPage(currentItem: NavigationMenuItem.tripHistory),
-        '/settings': (context) =>
-            const MainPage(currentItem: NavigationMenuItem.settings),
-        '/vehicles': (context) =>
-            const MainPage(currentItem: NavigationMenuItem.vehicles),
-      },
+    print('--- PricePump Boot: Launching App (Initial Route: $initialRoute) ---');
+    runApp(
+      PricePumpApp(hereInitMessage: hereInitMessage, initialRoute: initialRoute),
     );
   }
-}
+
+  Future<String?> _initializeHereSdk() async {
+    try {
+      SdkContext.init();
+    } catch (error) {
+      return 'HERE SDK context init failed: $error';
+    }
+
+    const accessKeyId = "df528Mc-qcBoIMFyHtk1pQ";
+    const accessKeySecret =
+        "3bDA6_wm3Ve01MsnUXW4cXj2FlJQfDvOClP2vCORSDXeZHDEE5K7VRTHHCmblJGVvh4SofQMapWYfDL8canRiA";
+
+    if (accessKeyId.isEmpty || accessKeySecret.isEmpty) {
+      return 'HERE SDK credentials are missing. Run with --dart-define=HERE_ACCESS_KEY_ID=... and --dart-define=HERE_ACCESS_KEY_SECRET=...';
+    }
+
+    try {
+      final authenticationMode = AuthenticationMode.withKeySecret(
+        accessKeyId,
+        accessKeySecret,
+      );
+      final sdkOptions = SDKOptions.withAuthenticationMode(authenticationMode);
+      await SDKNativeEngine.makeSharedInstance(sdkOptions);
+    } catch (error) {
+      return 'HERE SDK engine init failed: $error';
+    }
+
+    return null;
+  }
+
+  class PricePumpApp extends StatelessWidget {
+    const PricePumpApp({
+      super.key,
+      this.hereInitMessage,
+      this.initialRoute = '/login',
+    });
+
+    final String? hereInitMessage;
+    final String initialRoute;
+
+    @override
+    Widget build(BuildContext context) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Price Pump',
+        theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
+        initialRoute: initialRoute,
+        routes: {
+          '/login': (context) => const LoginPage(),
+          '/register': (context) => const RegisterPage(),
+          '/map': (context) => MainPage(
+            currentItem: NavigationMenuItem.map,
+            hereInitMessage: hereInitMessage,
+          ),
+          '/search': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.search),
+          '/trips': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.tripHistory),
+          '/settings': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.settings),
+          '/vehicles': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.vehicles),
+        },
+      );
+    }
+  }
 
 The program starts from this script. It initializes the HERE SDK, checks for an existing user session, and launches the app with the appropriate initial route (either the map page if a session exists or the login page if not).
 
@@ -487,7 +487,7 @@ account_model.dart
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
       );
-}
+  }
 
 This class represents the Account model, which contains information about a user's account.
 
@@ -659,6 +659,7 @@ Widgets
 We found that we had to re-use widgets a few time or rather separated widgets from thier associated pages so we can layer the code better. As a result we can fix widgets and code separatly and easily.
 
 add_vehicle_flow.dart
+^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: dart
 
@@ -1013,7 +1014,7 @@ Navigation_Menu.dart
       ),
     );
   }
-}
+  }
 
 this widget represents the custom navigation menu used in the application. It includes navigation items for Trips, Map, Vehicles, and Settings, as well as a central search button. The menu is designed to be visually distinct and user-friendly, with clear icons and labels for each navigation option.
 
@@ -1365,7 +1366,7 @@ vehicle_menu.dart
       ],
     );
   }
-}
+  }
 
 
 this widget represents the menu for managing vehicles in the application. It allows users to view their added vehicles, set an active vehicle, and add new vehicles. The UI includes an empty state when no vehicles are added and a tip banner to guide users on how to use the active vehicle feature. Each vehicle is displayed in a card with options to edit or delete it.
@@ -1380,30 +1381,30 @@ navigation_service.dart
 
   import '../models/journey_model.dart';
 
-/// A singleton service that persists the active navigation journey across
-/// page changes, so that switching tabs doesn't kill the active route.
-class NavigationService {
-  NavigationService._internal();
-  static final NavigationService instance = NavigationService._internal();
+  /// A singleton service that persists the active navigation journey across
+  /// page changes, so that switching tabs doesn't kill the active route.
+  class NavigationService {
+    NavigationService._internal();
+    static final NavigationService instance = NavigationService._internal();
 
-  // The journey that is currently being navigated. Null means no active session.
-  Journey? activeJourney;
+    // The journey that is currently being navigated. Null means no active session.
+    Journey? activeJourney;
 
-  // Whether navigation/driving mode is currently active.
-  bool isNavigationActive = false;
+    // Whether navigation/driving mode is currently active.
+    bool isNavigationActive = false;
 
-  /// Start a new navigation session with the given journey.
-  void startNavigation(Journey journey) {
-    activeJourney = journey;
-    isNavigationActive = true;
+    /// Start a new navigation session with the given journey.
+    void startNavigation(Journey journey) {
+      activeJourney = journey;
+      isNavigationActive = true;
+    }
+
+    /// End the current navigation session and clear all state.
+    void stopNavigation() {
+      activeJourney = null;
+      isNavigationActive = false;
+    }
   }
-
-  /// End the current navigation session and clear all state.
-  void stopNavigation() {
-    activeJourney = null;
-    isNavigationActive = false;
-  }
-}
 
 The comments explain each line in detail but the overall purpose of this script is to manage active change in your loaction.
 
@@ -1415,14 +1416,14 @@ db_init_desktop.dart
 
 .. code-block:: dart
 
-import 'dart:io';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+  import 'dart:io';
+  import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-void initDatabaseForPlatform() {
-  if (Platform.isWindows || Platform.isLinux) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+  void initDatabaseForPlatform() {
+    if (Platform.isWindows || Platform.isLinux) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
   }
-}
 
 
