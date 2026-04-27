@@ -19,6 +19,7 @@ Main.dart
 ---------
 
 .. code-block:: dart
+  
   import 'package:flutter/material.dart';
   import 'package:here_sdk/core.dart';
   import 'package:here_sdk/core.engine.dart';
@@ -119,7 +120,6 @@ Main.dart
       );
     }
   }
-
 
 The program starts from this script. It initializes the HERE SDK, checks for an existing user session, and launches the app with the appropriate initial route (either the map page if a session exists or the login page if not).
 
