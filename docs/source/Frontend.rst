@@ -457,3 +457,90 @@ journey_model.dart
 This class represents the Journey model which contains details about the user's journey allowing them to view how much ca journey may cost.
 
 
+location_model.dart
+^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+  class Location {
+  final int? id;
+  final String name;
+  final double latitude;
+  final double longitude;
+  final String? address;
+  final String? placeId;
+
+  //...
+
+  /// Create Location from map (database/API response)
+  static Location fromMap(Map<String, dynamic> map) {
+    return Location(
+      id: map['id'] as int?,
+      name: map['name'] as String? ?? 'Unknown',
+      latitude: map['latitude'] as double? ?? 0.0,
+      longitude: map['longitude'] as double? ?? 0.0,
+      address: map['address'] as String?,
+      placeId: map['place_id'] as String?,
+    );
+  }
+
+
+  /// Convert to HERE SDK GeoCoordinates for map integration
+  /// This allows us to easily use Location instances with HERE SDK features
+  /// Here SDK uses a different coordinate system, so this conversion is necessary for map display and routing
+  GeoCoordinates toGeoCoordinates() {
+    return GeoCoordinates(latitude, longitude);
+  }
+
+This model represents a Location with various details such as name, coordinates, and address. It also includes a method to convert the location to HERE SDK's GeoCoordinates for map integration.
+
+vehicle_model.dart
+^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+  class Vehicle {
+  final int? id;
+  final int? userId;
+  final String? registrationNumber;
+  final String make;
+  final String? model;
+  final String colour;
+  final int? engineCapacity;
+  final String taxStatus;
+  final String motStatus;
+  final int? year;
+  final String? gearType;
+  final int? mpg;
+  final int? co2Emissions;
+  final int? engineSize;
+  final String fuelType;
+  final String? nickname;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  //...
+
+  factory Vehicle.fromJson(Map<String, dynamic> json) {
+    return Vehicle(
+      registrationNumber: json['registrationNumber'] ?? '',
+      make: json['make'] ?? 'Unknown',
+      model: json['model'],
+      year: json['year'],
+      gearType: json['gearType'],
+      mpg: json['mpg'],
+      co2Emissions: json['co2Emissions'],
+      engineSize: json['engineSize'],
+      colour: json['colour'] ?? 'Unknown',
+      engineCapacity: json['engineCapacity'],
+      fuelType: json['fuelType'] ?? 'Unknown',
+      taxStatus: json['taxStatus'] ?? 'Unknown',
+      motStatus: json['motStatus'] ?? 'Unknown',
+      nickname: json['nickname'],
+      isActive: json['isActive'],
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'] as String) : null,
+    );
+  }
+
+This model represents a Vehicle with various details such as make, model, year, and fuel type. It includes a factory constructor to create a Vehicle instance from a JSON map, which is useful for parsing API responses or database records.
