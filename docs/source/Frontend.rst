@@ -544,3 +544,720 @@ vehicle_model.dart
   }
 
 This model represents a Vehicle with various details such as make, model, year, and fuel type. It includes a factory constructor to create a Vehicle instance from a JSON map, which is useful for parsing API responses or database records.
+
+Widgets
+-------
+
+We found that we had to re-use widgets a few time or rather separated widgets from thier associated pages so we can layer the code better. As a result we can fix widgets and code separatly and easily.
+
+add_vehicle_flow.dart
+
+.. code-block:: dart
+
+  // ...
+
+      super.initState();
+    if (widget.initialVehicle != null) {
+      _fetchedVehicle = widget.initialVehicle;
+      _isManualMode = true; // Allow editing existing data
+      _currentStep = 1;
+      _regController.text = _fetchedVehicle!.registrationNumber ?? '';
+      _nicknameController.text = _fetchedVehicle!.nickname ?? '';
+      _mpgController.text = _fetchedVehicle!.mpg?.toString() ?? '';
+      
+      // Pre-fill manual controllers too
+      _makeController.text = _fetchedVehicle!.make;
+      _modelController.text = _fetchedVehicle!.model ?? '';
+      _colourController.text = _fetchedVehicle!.colour;
+      _fuelController.text = _fetchedVehicle!.fuelType;
+      _yearController.text = _fetchedVehicle!.year?.toString() ?? '';
+    }
+  }
+
+  //...
+
+    Future<void> _lookupVehicle() async {
+    if (_regController.text.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final vehicle = await _dvlaRepo.getVehicleDetails(_regController.text);
+      if (mounted) {
+        setState(() {
+          _fetchedVehicle = vehicle;
+          _currentStep = 1;
+          _isLoading = false;
+          
+          // Pre-fill manual controllers in case they want to edit
+          _makeController.text = _fetchedVehicle!.make;
+          _modelController.text = _fetchedVehicle!.model ?? '';
+          _colourController.text = _fetchedVehicle!.colour;
+          _fuelController.text = _fetchedVehicle!.fuelType;
+          _yearController.text = _fetchedVehicle!.year?.toString() ?? '';
+        });
+      }
+    } on DvlaNotFoundException catch (_) {
+      setState(() {
+        _error = "Vehicle not found. Please check your Registration Number.\n(Tip: Are you mistaking '0' for 'O' or '1' for 'I'?)";
+        _isLoading = false;
+      });
+    } on DvlaRateLimitException catch (_) {
+      setState(() {
+        _error = "Too many requests. Please wait a moment and try again.";
+        _isLoading = false;
+      });
+    } on DvlaException catch (e) {
+      setState(() {
+        _error = e.message;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = "An unexpected error occurred: $e";
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveVehicle() async {
+    if (_fetchedVehicle == null) return;
+    
+    final nickname = _nicknameController.text;
+    if (nickname.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a nickname for your vehicle")),
+      );
+      return;
+    }
+
+    if (nickname.length > 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nickname must be 10 characters or less")),
+      );
+      return;
+    }
+
+    final user = await _authService.getCurrentUser();
+    if (user == null || user.id == null) return;
+
+    final isUnique = await _localRepo.isNicknameUnique(nickname, user.id!);
+    // Only check uniqueness if the nickname changed OR if it's a new vehicle
+    if (!isUnique && (widget.initialVehicle == null || widget.initialVehicle!.nickname != nickname)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You already have a vehicle with this nickname")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final vehicleToSave = _fetchedVehicle!.copy(
+        userId: user.id,
+        nickname: nickname,
+        registrationNumber: _regController.text,
+        make: _isManualMode ? _makeController.text : _fetchedVehicle!.make,
+        model: _isManualMode ? _modelController.text : _fetchedVehicle!.model,
+        colour: _isManualMode ? _colourController.text : _fetchedVehicle!.colour,
+        fuelType: _isManualMode ? _fuelController.text : _fetchedVehicle!.fuelType,
+        year: _isManualMode ? int.tryParse(_yearController.text) : _fetchedVehicle!.year,
+        mpg: int.tryParse(_mpgController.text),
+        isActive: widget.initialVehicle?.isActive ?? false,
+      );
+
+      if (widget.initialVehicle != null) {
+        await _localRepo.update(vehicleToSave);
+      } else {
+        await _localRepo.create(vehicleToSave);
+      }
+      widget.onVehicleAdded();
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to save vehicle: $e")),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+
+  Widget _buildRegInput() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          "Enter your vehicle's Registration Number to automatically fetch details.",
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _regController,
+          decoration: InputDecoration(
+            labelText: "Registration Number",
+            hintText: "e.g. AB12 CDE",
+            border: const OutlineInputBorder(),
+            errorText: _error,
+            suffixIcon: _isLoading 
+              ? const Padding(
+                  padding: EdgeInsets.all(12),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _lookupVehicle,
+                ),
+          ),
+          textCapitalization: TextCapitalization.characters,
+          onSubmitted: (_) => _lookupVehicle(),
+        ),
+        const SizedBox(height: 16),
+        const Text("OR", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.grey)),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: _switchToManualMode,
+          icon: const Icon(Icons.edit_note),
+          label: const Text("Enter Details Manually"),
+        ),
+        if (_error != null) ...[
+          const SizedBox(height: 20),
+          const Text(
+            "Is the DVLA service down? You can also try adding it manually.",
+            style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ],
+      ],
+    );
+  }
+
+This widget represents the flow for adding a vehicle, allowing users to either look up their vehicle details using the DVLA API or enter them manually. It includes error handling for various scenarios such as not finding the vehicle or hitting rate limits, and ensures that the nickname for the vehicle is unique and valid before saving.
+
+map_ui.dart
+^^^^^^^^^^
+
+.. code-block:: dart
+
+  Future<Position?> _getCurrentPosition() async {
+    final hasAccess = await _canAccessDeviceLocation();
+    if (!hasAccess) {
+      return null;
+    }
+
+    return Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
+  Future<GeoCoordinates?> _getCurrentCoordinates() async {
+    final position = await _getCurrentPosition();
+    if (position == null) {
+      return null;
+    }
+
+    // Convert the Geolocator Position to HERE SDK GeoCoordinates
+    return GeoCoordinates(position.latitude, position.longitude);
+  }
+
+  //...
+
+  Future<void> _moveCameraToInitialPosition(
+    HereMapController controller,
+  ) async {
+    GeoCoordinates center;
+    try {
+      center =
+          await _getCurrentCoordinates() ??
+          GeoCoordinates(widget.initialLatitude, widget.initialLongitude);
+    } catch (_) {
+      center = GeoCoordinates(widget.initialLatitude, widget.initialLongitude);
+    }
+
+    controller.camera.lookAtPoint(center);
+  }
+
+  void _followCameraToPosition(Position position) {
+    final controller = _mapController;
+    if (controller == null) {
+      return;
+    }
+
+    final target = GeoCoordinates(position.latitude, position.longitude);
+    
+    if (_isDrivingMode) {
+      // Perspective mode for driving: Tilt and Rotate to Match Heading
+      controller.camera.lookAtPointWithGeoOrientationAndMeasure(
+        target,
+        GeoOrientationUpdate(position.heading, 60), // 60 degree tilt
+        MapMeasure(MapMeasureKind.zoomLevel, 17),  // Close zoom for driving
+      );
+    } else {
+      // Standard top-down follow
+      controller.camera.lookAtPoint(target);
+    }
+  }
+
+This code snippet includes functions for obtaining the user's current location and moving the map camera to that location. It uses the Geolocator package to get the device's position and converts it to HERE SDK's GeoCoordinates. The camera can be set to follow the user's position in either a standard top-down view or a tilted perspective mode for driving.
+
+Navigation_Menu.dart
+^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: SizedBox(
+        height: 94,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.topCenter,
+          children: [
+            Positioned.fill(
+              top: 16,
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border(
+                    top: BorderSide(
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.2),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _NavItem(
+                        icon: Icons.receipt_long_outlined,
+                        selectedIcon: Icons.receipt_long,
+                        label: 'Trips',
+                        selected: currentItem == NavigationMenuItem.tripHistory,
+                        onTap: () => onItemSelected(NavigationMenuItem.tripHistory),
+                      ),
+                    ),
+                    Expanded(
+                      child: _NavItem(
+                        icon: Icons.map_outlined,
+                        selectedIcon: Icons.map,
+                        label: 'Map',
+                        selected: currentItem == NavigationMenuItem.map,
+                        onTap: () =>
+                            onItemSelected(NavigationMenuItem.map),
+                      ),
+                    ),
+                    const SizedBox(width: 72),
+                    Expanded(
+                      child: _NavItem(
+                        icon: Icons.directions_car_outlined,
+                        selectedIcon: Icons.directions_car,
+                        label: 'Vehicles',
+                        selected: currentItem == NavigationMenuItem.vehicles,
+                        onTap: () => onItemSelected(NavigationMenuItem.vehicles),
+                      ),
+                    ),
+                    Expanded(
+                      child: _NavItem(
+                        icon: Icons.settings_outlined,
+                        selectedIcon: Icons.settings,
+                        label: 'Settings',
+                        selected: currentItem == NavigationMenuItem.settings,
+                        onTap: () => onItemSelected(NavigationMenuItem.settings),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    onSearchPressed?.call();
+                    onItemSelected(NavigationMenuItem.search);
+                  },
+                  child: Ink(
+                    width: 58,
+                    height: 58,
+                    decoration: const ShapeDecoration(
+                      shape: CircleBorder(),
+                      color: Colors.orange,
+                    ),
+                    child: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+this widget represents the custom navigation menu used in the application. It includes navigation items for Trips, Map, Vehicles, and Settings, as well as a central search button. The menu is designed to be visually distinct and user-friendly, with clear icons and labels for each navigation option.
+
+saved_location_popup.dart
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+    Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Saved Locations',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+              const Divider(),
+              if (_isLoading)
+                const Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                )
+              else if (_favorites.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32.0),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.favorite_border,
+                        size: 48,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No saved locations yet.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          widget.onAddNew();
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add a location'),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _favorites.length,
+                    itemBuilder: (context, index) {
+                      final fav = _favorites[index];
+                      return ListTile(
+                        leading: const Icon(Icons.location_on),
+                        title: Text(fav.name),
+                        subtitle: fav.address != null
+                            ? Text(
+                                fav.address!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            : null,
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          onPressed: () => _deleteFavorite(fav),
+                        ),
+                        onTap: () {
+                          Navigator.of(context).pop(fav.toLocation());
+                        },
+                      );
+                    },
+                  ),
+                ),
+              if (_favorites.isNotEmpty) ...[
+                const Divider(),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    widget.onAddNew();
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add new location'),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+This widget represents a popup dialog that displays the user's saved locations. It allows users to view their saved locations, delete them, or add new ones. If there are no saved locations, it shows a friendly message and prompts the user to add a new location.
+
+vehicle_menu.dart
+^^^^^^^^^^^^^^^^
+
+.. code-block:: dart
+
+
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('My Vehicles')),
+      body: _vehicles.isEmpty
+          ? _buildEmptyState()
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                _buildTipBanner(),
+                const SizedBox(height: 16),
+                ..._vehicles.map((vehicle) => _buildVehicleCard(vehicle)),
+              ],
+            ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showAddVehicleFlow,
+        icon: const Icon(Icons.add),
+        label: const Text("Add Vehicle"),
+      ),
+    );
+  }
+
+  Widget _buildTipBanner() {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.1)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.tips_and_updates_outlined,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Quick Tip",
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  "Use the Active toggle on a vehicle card to choose your default vehicle.",
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.directions_car_outlined,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            "No vehicles added yet",
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Add your car to start calculating trip costs!",
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _showAddVehicleFlow,
+            child: const Text("Add My First Vehicle"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVehicleCard(Vehicle vehicle) {
+    final theme = Theme.of(context);
+    final isActive = _selectedVehicle?.id == vehicle.id;
+
+    return Card(
+      elevation: isActive ? 4 : 1,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: isActive
+            ? BorderSide(color: theme.colorScheme.primary, width: 2)
+            : BorderSide.none,
+      ),
+      child: InkWell(
+        onTap: () => _onSelectVehicle(vehicle),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vehicle.nickname ?? "Unnamed Vehicle",
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                        Text(
+                          vehicle.registrationNumber?.toUpperCase() ??
+                              "UNKNOWN REG",
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isActive)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "ACTIVE",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, color: Colors.grey),
+                    onPressed: () => _onEditVehicle(vehicle),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () => _onDeleteVehicle(vehicle),
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildStat(
+                    Icons.directions_car,
+                    "${vehicle.make} ${vehicle.model ?? ''}",
+                  ),
+                  _buildStat(Icons.local_gas_station, vehicle.fuelType),
+                  _buildStat(Icons.bolt, "${vehicle.mpg ?? '--'} MPG"),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Use as active vehicle',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Switch.adaptive(
+                    value: isActive,
+                    onChanged: (value) {
+                      if (value) {
+                        _onSelectVehicle(vehicle);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStat(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+}
+
+
+this widget represents the menu for managing vehicles in the application. It allows users to view their added vehicles, set an active vehicle, and add new vehicles. The UI includes an empty state when no vehicles are added and a tip banner to guide users on how to use the active vehicle feature. Each vehicle is displayed in a card with options to edit or delete it.
