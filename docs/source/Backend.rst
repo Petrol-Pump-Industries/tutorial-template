@@ -504,3 +504,5 @@ weather_service.py
                 factor *= 0.90
                 
             return round(factor, 3)
+
+weather_service.py contains functions to fetch current weather data for a given GPS location using the Open-Meteo API and to calculate an efficiency multiplier based on the weather conditions. The efficiency factor can be used in fuel consumption calculations to account for the impact of temperature and wind on vehicle performance.
