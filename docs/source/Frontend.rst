@@ -246,7 +246,53 @@ search_page.dart
 
 .. code-block:: dart
 
+  Future<void> _loadSavedLocations() async {
+    try {
+      final user = await _authService.getCurrentUser();
+      if (user?.id != null) {
+        final favs = await _favoriteRepo.getFavorites(user!.id!);
+        if (mounted) {
+          setState(() {
+            _savedLocations = favs;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading saved locations: $e');
+    }
+  }
 
+  // _loadSavedLocations is responsible for fetching the user's saved locations from the repository. It retrieves the current user, checks if they have a valid ID, and then fetches their favorite locations. The results are stored in the state variable `_savedLocations` for use in the UI.
+
+  final coords = await _getCurrentCoordinates();
+  if (coords == null) {
+    throw Exception('Current location unavailable');
+  }
+
+  // _getCurrentCoordinates is a helper function that attempts to retrieve the user's current geographic coordinates. It first checks if the app has permission to access the device's location, and if so, it uses the Geolocator package to get the current position. The position is then converted to HERE SDK's GeoCoordinates format for use in map-related features.
+
+  Future<void> _updateRoutePreview() async {
+  final routingEngine = _routingEngine;
+  final nonNullStops = _stops.whereType<Location>().toList();
+
+  if (nonNullStops.length < 2 || routingEngine == null) {
+    if (!mounted) return;
+    setState(() {
+      _isRoutePreviewLoading = false;
+      _routePreviewText = null;
+      _routePreviewError = null;
+      _hereRouteDistanceMiles = null;
+      _hereBaseDurationSeconds = null;
+      _isBackendEtaLoading = false;
+      _backendEtaText = null;
+      _backendEtaError = null;
+    });
+    return;
+  }
+
+  // _updateRoutePreview is responsible for calculating and updating the route preview information based on the current stops entered by the user. It checks if there are at least two valid stops and if the routing engine is available. If so, it calculates the route using the HERE SDK and updates the state with the distance and duration information. If there are errors during this process, it captures and displays them in the UI.
+
+search_page.dart allows users to search for locations and get route previews based on their input. It interacts with the HERE SDK to calculate routes and provides feedback on the distance and duration of the route, as well as handling any errors that may occur during the process.
 
 settings_page.dart
 ^^^^^^^^^^^^^^^
