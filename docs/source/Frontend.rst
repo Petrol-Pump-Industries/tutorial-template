@@ -20,6 +20,95 @@ Main.dart
 
 .. code-block:: dart
 
+  Future<void> main() async {
+    print('############################################################');
+    print('--- PRICE PUMP BOOT: APP IS STARTING NOW ---');
+    print('############################################################');
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialise SQLite FFI for desktop platforms (no-op on web)
+    print('--- PricePump Boot: DB Platform Init ---');
+    initDatabaseForPlatform();
+
+    print('--- PricePump Boot: Initializing HERE SDK ---');
+    final hereInitMessage = await _initializeHereSdk();
+
+    // Check if a session already exists
+    print('--- PricePump Boot: Checking Auth Session ---');
+    final existingUser = await AuthService().getCurrentUser();
+    final initialRoute = existingUser != null ? '/map' : '/login';
+
+    print('--- PricePump Boot: Launching App (Initial Route: $initialRoute) ---');
+    runApp(
+      PricePumpApp(hereInitMessage: hereInitMessage, initialRoute: initialRoute),
+    );
+  }
+
+  Future<String?> _initializeHereSdk() async {
+    try {
+      SdkContext.init();
+    } catch (error) {
+      return 'HERE SDK context init failed: $error';
+    }
+
+    const accessKeyId = "df528Mc-qcBoIMFyHtk1pQ";
+    const accessKeySecret =
+        "3bDA6_wm3Ve01MsnUXW4cXj2FlJQfDvOClP2vCORSDXeZHDEE5K7VRTHHCmblJGVvh4SofQMapWYfDL8canRiA";
+
+    if (accessKeyId.isEmpty || accessKeySecret.isEmpty) {
+      return 'HERE SDK credentials are missing. Run with --dart-define=HERE_ACCESS_KEY_ID=... and --dart-define=HERE_ACCESS_KEY_SECRET=...';
+    }
+
+    try {
+      final authenticationMode = AuthenticationMode.withKeySecret(
+        accessKeyId,
+        accessKeySecret,
+      );
+      final sdkOptions = SDKOptions.withAuthenticationMode(authenticationMode);
+      await SDKNativeEngine.makeSharedInstance(sdkOptions);
+    } catch (error) {
+      return 'HERE SDK engine init failed: $error';
+    }
+
+    return null;
+  }
+
+  class PricePumpApp extends StatelessWidget {
+    const PricePumpApp({
+      super.key,
+      this.hereInitMessage,
+      this.initialRoute = '/login',
+    });
+
+    final String? hereInitMessage;
+    final String initialRoute;
+
+    @override
+    Widget build(BuildContext context) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Price Pump',
+        theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
+        initialRoute: initialRoute,
+        routes: {
+          '/login': (context) => const LoginPage(),
+          '/register': (context) => const RegisterPage(),
+          '/map': (context) => MainPage(
+            currentItem: NavigationMenuItem.map,
+            hereInitMessage: hereInitMessage,
+          ),
+          '/search': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.search),
+          '/trips': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.tripHistory),
+          '/settings': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.settings),
+          '/vehicles': (context) =>
+              const MainPage(currentItem: NavigationMenuItem.vehicles),
+        },
+      );
+    }
+  }
 
 
 The program starts from this script. It initializes the HERE SDK, checks for an existing user session, and launches the app with the appropriate initial route (either the map page if a session exists or the login page if not).
