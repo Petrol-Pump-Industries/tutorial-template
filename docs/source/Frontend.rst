@@ -9,11 +9,17 @@ In order to keep each and every part of the program be easy to Read.
 Fonts
 -----
 
-//temp
+The application utilizes the default **Material 3 Typography** system. It primarily uses the **Roboto** font family (standard for Flutter/Android) to ensure a clean, readable interface that adapts to the system's text scaling settings.
 
 Colours
 -----
-//temp
+
+PricePump follows a **Material 3 Color System** seeded from a primary blue base (``Colors.blue``). This generates a dynamic color scheme that includes:
+
+- **Primary**: Used for key action buttons (e.g., "Add Vehicle").
+- **Secondary/Tertiary**: Used for highlights and less critical UI elements.
+- **Surface/Background**: Neutral tones used for cards and page backgrounds, ensuring high contrast and accessibility.
+
 
 Main.dart
 ---------
