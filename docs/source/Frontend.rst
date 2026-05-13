@@ -1190,7 +1190,6 @@ saved_location_popup.dart
       ),
     );
   }
-}
 
 This widget represents a popup dialog that displays the user's saved locations.
 It allows users to view their saved locations, delete them, or add new ones. If there are no saved locations, it shows a friendly message and prompts the user to add a new location.

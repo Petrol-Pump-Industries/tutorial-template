@@ -43,17 +43,17 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
-  http: ^1.2.0
-  sqflite: ^2.3.0
-  sqflite_common_ffi: ^2.3.3
-  path: ^1.9.0
-  sqlite3: ^2.4.6
-  geolocator: ^12.0.0
+cupertino_icons: ^1.0.8
+http: ^1.2.0
+sqflite: ^2.3.0
+sqflite_common_ffi: ^2.3.3
+path: ^1.9.0
+sqlite3: ^2.4.6
+geolocator: ^12.0.0
 
-  here_sdk:
-    path: plugins/heresdk-explore-flutter-4.25.5.0.274356
-  image_picker: ^1.2.1
+here_sdk:
+   path: plugins/heresdk-explore-flutter-4.25.5.0.274356
+image_picker: ^1.2.1
 
 
 .. note::
