@@ -31,7 +31,8 @@ config.py
     # --- Default Prices ---
     DEFAULT_FUEL_PRICE_GBP = 1.45
 
-This script contains the configuration settings for the PricePump project, including paths, database URL, baseline physics constants, and default fuel prices. It serves as a central location for all configuration-related information, making it easier to manage and maintain the project.
+This script contains the configuration settings for the PricePump project, including paths, database URL, baseline physics constants, and default fuel prices.
+It serves as a central location for all configuration-related information, making it easier to manage and maintain the project.
 
 database.py
 ^^^^^^^^^^^
@@ -58,7 +59,8 @@ database.py
     # --- Default Prices ---
     DEFAULT_FUEL_PRICE_GBP = 1.45
 
-This script contains the database configuration settings for the PricePump project, including paths, database URL, baseline physics constants, and default fuel prices. It serves as a central location for all database-related information, making it easier to manage and maintain the project.
+This script contains the database configuration settings for the PricePump project, including paths, database URL, baseline physics constants, and default fuel prices.
+It serves as a central location for all database-related information, making it easier to manage and maintain the project.
 
 services
 --------
@@ -244,7 +246,8 @@ calculation_service.py
 
         return liters_low, liters_high, note
 
-calculation_service.py contains the core logic for estimating fuel consumption and journey time based on various factors such as engine size, vehicle weight, route type, and environmental conditions. It incorporates advanced physics-based calculations and can cross-reference with factory specifications when available.
+Calculation_service.py contains the core logic for estimating fuel consumption and journey time based on various factors such as engine size, vehicle weight, route type, and environmental conditions.
+It incorporates advanced physics-based calculations and can cross-reference with factory specifications when available.
 
 data_update_service.py
 ^^^^^^^^^^^^^^^^^^^^^
@@ -307,7 +310,9 @@ data_update_service.py
         else:
             print("Update: Local fuel data is up to date (less than 24h old).")
 
-data_update_service.py contains functions to download the latest fuel price data from a specified URL and save it locally. It also includes logic to check if the existing data is stale (older than a specified number of hours) and only triggers an update if necessary. This helps ensure that the application always has access to recent fuel price information without unnecessary downloads.
+Data_update_service.py contains functions to download the latest fuel price data from a specified URL and save it locally.
+It also includes logic to check if the existing data is stale (older than a specified number of hours) and only triggers an update if necessary.
+This helps ensure that the application always has access to recent fuel price information without unnecessary downloads.
 
 fuel_service.py
 ^^^^^^^^^^^^^^^^
@@ -444,7 +449,9 @@ fuel_service.py
 
     // get_current_fuel_price is a function that retrieves the current fuel price based on the specified fuel type and optional parameters such as vehicle year and user location. It first attempts to get live data from an API, then falls back to reading from a local CSV file if the API data is unavailable. If GPS coordinates are provided, it calculates the average price of nearby fuel stations within a specified radius. If no location data is available, it uses national averages or defaults as necessary.
 
-fuel_service.py contains the logic for retrieving current fuel prices, utilizing both live API data and local CSV data as fallbacks. It can calculate regional averages and provide location-based pricing when GPS coordinates are available. This service ensures that the application can access accurate fuel price information under various conditions.
+fuel_service.py contains the logic for retrieving current fuel prices, utilizing both live API data and local CSV data as fallbacks.
+It can calculate regional averages and provide location-based pricing when GPS coordinates are available.
+This service ensures that the application can access accurate fuel price information under various conditions.
 
 weather_service.py
 ^^^^^^^^^^^^^^^^
@@ -505,4 +512,6 @@ weather_service.py
                 
             return round(factor, 3)
 
-weather_service.py contains functions to fetch current weather data for a given GPS location using the Open-Meteo API and to calculate an efficiency multiplier based on the weather conditions. The efficiency factor can be used in fuel consumption calculations to account for the impact of temperature and wind on vehicle performance.
+Weather_service.py contains functions to fetch current weather data for a given GPS location using the Open-Meteo API and to calculate an efficiency multiplier based on the weather conditions.
+The efficiency factor can be used in fuel consumption calculations to account for the impact of temperature and wind on vehicle performance.
+This is not currently in use but acts as a plcahoolder fot further developement.

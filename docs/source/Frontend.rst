@@ -4,12 +4,13 @@ Frontend
 Overview
 --------
 This front end uses various scripts such as pages and models. 
-In order to keep each and every part of the program be easy to Read.
+In order to keep each and every part of the program easy to Read.
 
 Fonts
 -----
 
-The application utilizes the default **Material 3 Typography** system. It primarily uses the **Roboto** font family (standard for Flutter/Android) to ensure a clean, readable interface that adapts to the system's text scaling settings.
+The application utilizes the default **Material 3 Typography** system.
+Primarily useing the **Roboto** font family (standard for Flutter/Android) to ensure a clean, readable interface that adapts to the system's text scaling settings.
 
 Colours
 -----
@@ -117,7 +118,8 @@ Main.dart
   }
 
 
-The program starts from this script. It initializes the HERE SDK, checks for an existing user session, and launches the app with the appropriate initial route (either the map page if a session exists or the login page if not).
+The program starts from this script.
+ It initializes the HERE SDK, checks for an existing user session, and launches the app with the appropriate initial route (either the map page if a session exists or the login page if not).
 
 Pages
 ------
@@ -167,7 +169,8 @@ If successful, it navigates to the map page; if there's an error, it displays a 
         }
     }
 
-This function allows users to create a guest account and navigate to the map page without needing to log in with an email and password. It also shows a loading indicator while the account is being created.
+This function allows users to create a guest account and navigate to the map page without needing to log in with an email and password.
+It also shows a loading indicator while the account is being created.
 
 main_page.dart
 ^^^^^^^^^^^^^^^
@@ -187,7 +190,8 @@ main_page.dart
     Navigator.of(context).pushReplacementNamed(nextRoute);
   }
 
-This function handles the selection of menu items in the navigation drawer. It checks if the selected item has a corresponding route and if it's not already the current route, it navigates to the new route using `pushReplacementNamed`.
+This function handles the selection of menu items in the navigation drawer.
+It checks if the selected item has a corresponding route and if it's not already the current route, it navigates to the new route using `pushReplacementNamed`.
 
 map_page.dart
 ^^^^^^^^^^^^^^^
@@ -206,7 +210,8 @@ map_page.dart
     }
   }
 
-This class represents the Map Page of the application. It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
+This class represents the Map Page of the application.
+It takes an optional initialization message and a journey object, which are passed to the Map UI component for rendering the map and related information.
 
 register_page.dart
 ^^^^^^^^^^^^^^^
@@ -245,7 +250,9 @@ register_page.dart
     }
   }
 
-This function handles the user registration process. It validates the form, shows a loading indicator, and attempts to register a new account using the provided email, username, and password. If registration is successful, it displays a success message and navigates back to the login page. If there's an error during registration, it shows an error message in a snackbar.
+This function handles the user registration process.
+It validates the form, shows a loading indicator, and attempts to register a new account using the provided email, username, and password.
+If registration is successful, it displays a success message and navigates back to the login page. If there's an error during registration, it shows an error message in a snackbar.
 
 search_page.dart
 ^^^^^^^^^^^^^^^
@@ -298,7 +305,8 @@ search_page.dart
 
   // _updateRoutePreview is responsible for calculating and updating the route preview information based on the current stops entered by the user. It checks if there are at least two valid stops and if the routing engine is available. If so, it calculates the route using the HERE SDK and updates the state with the distance and duration information. If there are errors during this process, it captures and displays them in the UI.
 
-search_page.dart allows users to search for locations and get route previews based on their input. It interacts with the HERE SDK to calculate routes and provides feedback on the distance and duration of the route, as well as handling any errors that may occur during the process.
+search_page.dart allows users to search for locations and get route previews based on their input.
+It interacts with the HERE SDK to calculate routes and provides feedback on the distance and duration of the route, as well as handling any errors that may occur during the process.
 
 settings_page.dart
 ^^^^^^^^^^^^^^^
@@ -368,7 +376,9 @@ settings_page.dart
   }
 
 
-the function `_onChangePassword` is responsible for handling the password change process. It prompts the user to enter a new password and confirm it. If the passwords match and are not empty, it proceeds with the password change; otherwise, it shows an error message.
+the function `_onChangePassword` is responsible for handling the password change process.
+It prompts the user to enter a new password and confirm it.
+If the passwords match and are not empty, it proceeds with the password change; otherwise, it shows an error message.
 
 .. code-block:: dart
 
@@ -399,7 +409,9 @@ the function `_onChangePassword` is responsible for handling the password change
     }
   }
 
-The function `_onLogout` handles the user logout process. It first shows a confirmation dialog to ensure the user wants to log out. If the user confirms, it calls the logout method from the authentication service and navigates back to the login page.
+The function `_onLogout` handles the user logout process.
+It first shows a confirmation dialog to ensure the user wants to log out.
+If the user confirms, it calls the logout method from the authentication service and navigates back to the login page.
 
 trips_page.dart
 ^^^^^^^^^^^^^^^
@@ -424,7 +436,9 @@ trips_page.dart
     }
   }
 
-The function `_loadJourneys` is responsible for loading the user's journeys from the repository. It first sets a loading state, then retrieves the current user and their journeys. If successful, it updates the state with the retrieved journeys; if there's an error, it logs the error and sets the journeys to an empty list. Finally, it resets the loading state.
+The function `_loadJourneys` is responsible for loading the user's journeys from the repository.
+It first sets a loading state, then retrieves the current user and their journeys.
+If successful, it updates the state with the retrieved journeys; if there's an error, it logs the error and sets the journeys to an empty list. Finally, it resets the loading state.
 
 vehicles_page.dart
 ^^^^^^^^^^^^^^^^^^
@@ -440,7 +454,8 @@ vehicles_page.dart
      }
    }
 
-This class represents the Vehicles Page of the application. It simply returns a `VehiclesMenu` widget, which is responsible for displaying the available vehicles and related options to the user.
+This class represents the Vehicles Page of the application
+It simply returns a `VehiclesMenu` widget, which is responsible for displaying the available vehicles and related options to the user.
 
 models
 ------
@@ -556,7 +571,7 @@ favourites_location_model.dart
     }
   }
 
-this is the FavoriteLocation model, which represents a user's saved lcoation with various details.
+this is the FavoriteLocation model, which represents a user's saved location with various details.
 
 journey_model.dart
 ^^^^^^^^^^^^^^^^
@@ -634,7 +649,6 @@ location_model.dart
     );
   }
 
-
   /// Convert to HERE SDK GeoCoordinates for map integration
   /// This allows us to easily use Location instances with HERE SDK features
   /// Here SDK uses a different coordinate system, so this conversion is necessary for map display and routing
@@ -642,7 +656,8 @@ location_model.dart
     return GeoCoordinates(latitude, longitude);
   }
 
-This model represents a Location with various details such as name, coordinates, and address. It also includes a method to convert the location to HERE SDK's GeoCoordinates for map integration.
+This model represents a Location with various details such as name, coordinates, and address.
+It also includes a method to convert the location to HERE SDK's GeoCoordinates for map integration.
 
 vehicle_model.dart
 ^^^^^^^^^^^^^^^^
@@ -693,12 +708,14 @@ vehicle_model.dart
     );
   }
 
-This model represents a Vehicle with various details such as make, model, year, and fuel type. It includes a factory constructor to create a Vehicle instance from a JSON map, which is useful for parsing API responses or database records.
+This model represents a Vehicle with various details such as make, model, year, and fuel type.
+It includes a factory constructor to create a Vehicle instance from a JSON map, which is useful for parsing API responses or database records.
 
 Widgets
 -------
 
-We found that we had to re-use widgets a few time or rather separated widgets from thier associated pages so we can layer the code better. As a result we can fix widgets and code separatly and easily.
+We found that we had to re-use widgets a few time or rather separated widgets from thier associated pages so we can layer the code better.
+As a result we can fix widgets and code separatly and easily.
 
 add_vehicle_flow.dart
 ^^^^^^^^^^^^^^^^^^^^^
@@ -885,7 +902,8 @@ add_vehicle_flow.dart
     );
   }
 
-This widget represents the flow for adding a vehicle, allowing users to either look up their vehicle details using the DVLA API or enter them manually. It includes error handling for various scenarios such as not finding the vehicle or hitting rate limits, and ensures that the nickname for the vehicle is unique and valid before saving.
+This widget represents the flow for adding a vehicle, allowing users to either look up their vehicle details using the DVLA API or enter them manually.
+It includes error handling for various scenarios such as not finding the vehicle or hitting rate limits, and ensures that the nickname for the vehicle is unique and valid before saving.
 
 map_ui.dart
 ^^^^^^^^^^
@@ -951,7 +969,9 @@ map_ui.dart
     }
   }
 
-This code snippet includes functions for obtaining the user's current location and moving the map camera to that location. It uses the Geolocator package to get the device's position and converts it to HERE SDK's GeoCoordinates. The camera can be set to follow the user's position in either a standard top-down view or a tilted perspective mode for driving.
+This code snippet includes functions for obtaining the user's current location and moving the map camera to that location.
+It uses the Geolocator package to get the device's position and converts it to HERE SDK's GeoCoordinates.
+The camera can be set to follow the user's position in either a standard top-down view or a tilted perspective mode for driving.
 
 Navigation_Menu.dart
 ^^^^^^^^^^^^^^^^^^^^^
@@ -1058,7 +1078,9 @@ Navigation_Menu.dart
   }
   }
 
-this widget represents the custom navigation menu used in the application. It includes navigation items for Trips, Map, Vehicles, and Settings, as well as a central search button. The menu is designed to be visually distinct and user-friendly, with clear icons and labels for each navigation option.
+This widget represents the custom navigation menu used in the application.
+It includes navigation items for Trips, Map, Vehicles, and Settings, as well as a central search button.
+The menu is designed to be visually distinct and user-friendly, with clear icons and labels for each navigation option.
 
 saved_location_popup.dart
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1168,9 +1190,9 @@ saved_location_popup.dart
       ),
     );
   }
-}
 
-This widget represents a popup dialog that displays the user's saved locations. It allows users to view their saved locations, delete them, or add new ones. If there are no saved locations, it shows a friendly message and prompts the user to add a new location.
+This widget represents a popup dialog that displays the user's saved locations.
+It allows users to view their saved locations, delete them, or add new ones. If there are no saved locations, it shows a friendly message and prompts the user to add a new location.
 
 vehicle_menu.dart
 ^^^^^^^^^^^^^^^^
@@ -1411,7 +1433,10 @@ vehicle_menu.dart
   }
 
 
-this widget represents the menu for managing vehicles in the application. It allows users to view their added vehicles, set an active vehicle, and add new vehicles. The UI includes an empty state when no vehicles are added and a tip banner to guide users on how to use the active vehicle feature. Each vehicle is displayed in a card with options to edit or delete it.
+this widget represents the menu for managing vehicles in the application.
+It allows users to view their added vehicles, set an active vehicle, and add new vehicles.
+The UI includes an empty state when no vehicles are added and a tip banner to guide users on how to use the active vehicle feature.
+Each vehicle is displayed in a card with options to edit or delete it.
 
 services
 --------
@@ -1467,5 +1492,6 @@ db_init_desktop.dart
       databaseFactory = databaseFactoryFfi;
     }
   }
+This utility initializes the database for desktop platforms (Windows and Linux) using the sqflite_common_ffi package.
 
 
